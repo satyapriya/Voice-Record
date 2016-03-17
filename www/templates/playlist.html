@@ -1,0 +1,18 @@
+<ion-view view-title="Playlist">
+  <ion-content class="padding">
+    <h1>Voice Record Panel</h1>
+    <a class="button button-balanced button-block" ng-click="recordStart()">
+      start
+    </a>
+    <a class="button button-balanced button-block" ng-show="isRecording" ng-click="recordStop()">
+      stop
+    </a>
+    <a class="button button-balanced button-block" ng-click="recordPlay()">
+      play
+    </a>
+    <a class="button button-balanced button-block" ng-show="isRecordComplete" ng-click="recordSend()">
+      send
+    </a>
+    <div class="record-label text-center padding positive">{{recordInfo}}</div>
+  </ion-content>
+</ion-view>

@@ -14,5 +14,47 @@
       send
     </a>
     <div class="record-label text-center padding positive">{{recordInfo}}</div>
+    <hr>
+    <!-- <button ng-show="!isPalying" ng-click="playFile()" class="button buttton-clear"><i class="play-icon ion-ios-play"></i></button>
+    <button ng-show="isPalying" ng-click="pauseFile()" class="button buttton-clear"><i class="play-icon ion-ios-pause"></i></button> -->
+    <!-- <div class="item item-avatar">
+      <img src="http://findicons.com/files/icons/2711/free_icons_for_windows8_metro/512/audio_wave.png">
+    </div> -->
+
+    <!-- <div class="item tabs tabs-secondary tabs-icon-left">
+      <a class="tab-item" href="#" ng-click="playFile(audio.track, audio.key)">
+        <i class="icon ion-ios-play"></i>
+        Play
+      </a>
+      <a class="tab-item" href="#" ng-click="pauseFile()">
+        <i class="icon ion-android-checkbox-blank"></i>
+        Stop
+      </a>
+    </div> -->
+
+     <div class="list">
+      <div class="item range range-positive">
+        <i class="icon ion-ios-play"  ng-show="!isPalying" ng-click="playFile(audio.track, audio.key)"></i>
+        <i class="icon ion-ios-pause" ng-show="isPalying" ng-click="pauseFile()" ></i>
+        <div style="width: 100%;display: inline-block;">
+          <div class="meter">
+            <span id="audio_bar"></span>
+          </div>
+        </div>
+        <i ng-click="pauseFile()" class="icon ion-android-checkbox-blank"></i>
+      </div>
+    </div>
+   <!--  <div class="anim-bar">
+      <div id="audio_bar" class="audio_bar"></div>
+    </div> -->
+    {{progressBarWidth}}-{{navigator}}
+    <span count-to="{{countTo}}" value="{{countFrom}}" duration="4"></span>
+    <p id="audio_position"></p>
+
+
+    <audio controls>
+      <source ng-src="{{recorded_file_url | trusted}}" type="audio/mpeg">
+    </audio>
+
   </ion-content>
 </ion-view>

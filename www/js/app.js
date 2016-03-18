@@ -4,7 +4,7 @@
 // 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 // 'starter.controllers' is found in controllers.js
-angular.module('starter', ['ionic', 'starter.controllers', 'ngCordova'])
+angular.module('starter', ['ionic', 'starter.controllers', 'ngCordova', 'ionic-audio'])
 
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
@@ -21,6 +21,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ngCordova'])
     }
   });
 })
+.filter('trusted', ['$sce', function ($sce) {
+    return function(url) {
+        return $sce.trustAsResourceUrl(url);
+    };
+}])
 
 .service('FileService', function($ionicPlatform, $cordovaFile){
   var createDirectory = function(audioDirectory){
@@ -45,7 +50,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ngCordova'])
   }
 })
 
-.service('Sounds', function($ionicPlatform, $cordovaFile, $ionicLoading, FileService, $timeout){
+.service('Sounds', function($ionicPlatform, $cordovaFile, $ionicLoading, FileService, $timeout, $cordovaMedia){
   var self = this;
   $ionicPlatform.ready(function() {
     var recorder = new Object;
@@ -64,7 +69,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ngCordova'])
         // failed
         alert('ko: ' + msg);
       });
-    } 
+    }
 
     saveAudio = function(fileName, $scope){
       if (cordova.file.documentsDirectory) {
@@ -72,7 +77,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ngCordova'])
       } else {
         directory = cordova.file.externalRootDirectory; // for Android
       }
-      var recorded_file = "record" + Date.now() +".m4a"
+      var recorded_file = "record" + Date.now() +".mp3"
       $cordovaFile.copyFile(
         cordova.file.dataDirectory, fileName,
         directory+audioDirectory, recorded_file
@@ -81,6 +86,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ngCordova'])
           $scope.isRecording = false;
           $scope.recordInfo = "";
           recorded_file_url= success.nativeURL
+          $scope.recorded_file_url= success.nativeURL
           console.log("success.nativeURL", success.nativeURL);
           $scope.isRecordComplete = true;
         }, function (error) {
@@ -122,6 +128,82 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ngCordova'])
         alert('ko: ' + msg);
       });
     }
+
+    // audio play plugin code
+    var mediaStatusCallback = function(status) {
+      if(status == 1) {
+        $ionicLoading.show({template: 'Loading...'});
+      } else {
+        $ionicLoading.hide();
+      }
+    }
+    var media;
+    var playStatus;
+    var iOSPlayOptions = {
+      numberOfLoops: 2,
+      playAudioWhenScreenIsLocked : false
+    }
+    var media = null;
+    var mediaTimer = null;
+    recorder.playSound = function(playSoundScope){
+      playSoundScope.isPalying=true;
+      console.log("play sound", playSoundScope.isPalying);
+      if(recorded_file_url.charAt(0) == 'f'){
+        recorded_file_url = recorded_file_url.slice(7); // for ios
+      }
+      media = new Media(""+recorded_file_url, null, null, mediaStatusCallback);
+      media.play(media, { playAudioWhenScreenIsLocked : false });
+      // Update my_media position every second
+      var totalDuration;
+      $timeout(function() {
+          totalDuration = media.getLength();
+      }, 100);
+      if (mediaTimer == null) {
+        mediaTimer = setInterval(function() {
+          console.log(totalDuration);
+          // get my_media position
+          media.getCurrentPosition(
+            // success callback
+            function(position) {
+              if (position > -1) {
+                setAudioPosition(position, totalDuration, playSoundScope);
+              }
+            },
+            // error callback
+            function(e) {
+              console.log("Error getting pos=" + e);
+              setAudioPosition("Error: " + e);
+            }
+          );
+        }, 100);
+        console.log("playStatus",playStatus);
+      }
+    }
+    recorder.pauseSound = function($scope){
+      console.log("pause sound")
+      if(media != null){
+        media.pause();
+        clearInterval(mediaTimer);
+        mediaTimer = null;
+      }
+    }
+    function setAudioPosition(position, totalDuration, playSoundScope) {
+      if(position <= 0){
+        document.getElementById('audio_bar').style.width = (100) + "%";
+        clearInterval(mediaTimer);
+        mediaTimer = null;
+        playSoundScope.isPlaying=false;
+        console.log("playSoundScope", playSoundScope.isPlaying);
+        playStatus = "playComplete";
+      }else{
+        console.log("position:",position);
+        console.log("totalDuration", totalDuration)
+        console.log("100/position",(position/totalDuration) * 100)
+        document.getElementById('audio_bar').style.width = ((position/totalDuration) * 100) + "%";
+      }
+      document.getElementById('audio_position').innerHTML = position + " sec";
+    }
+    // end audio play plugin code
   });
 })
 

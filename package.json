@@ -25,7 +25,8 @@
     "cordova-plugin-statusbar",
     "ionic-plugin-keyboard",
     "cordova-plugin-audio-recorder-api",
-    "cordova-plugin-file"
+    "cordova-plugin-file",
+    "cordova-plugin-media"
   ],
   "cordovaPlatforms": [
     {

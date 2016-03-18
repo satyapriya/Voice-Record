@@ -52,8 +52,8 @@ angular.module('starter.controllers', [])
   ];
 })
 
-.controller('PlaylistCtrl', function($scope, $ionicPlatform, $cordovaFile, $ionicLoading, Sounds) {
-  $ionicPlatform.ready(function() {
+.controller('PlaylistCtrl', function($scope, $ionicPlatform, $cordovaFile, $ionicLoading, Sounds, MediaManager, $timeout) {
+    $scope.isPalying=false;
     $scope.isRecording = false;
     $scope.isRecordComplete = false;
   
@@ -69,5 +69,14 @@ angular.module('starter.controllers', [])
     $scope.recordSend = function(){
       Sounds.myRecordObj.sendAudio($scope);
     }
-  })
+
+    $scope.playFile = function(playStatus){
+      Sounds.myRecordObj.playSound($scope);
+      console.log("playStatus",playStatus)
+    }
+
+    $scope.pauseFile = function(){
+      Sounds.myRecordObj.pauseSound($scope);
+      $scope.isPalying=false;
+    }
 });

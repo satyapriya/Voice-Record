@@ -34,8 +34,7 @@
 
      <div class="list">
       <div class="item range range-positive">
-        <i class="icon ion-ios-play"  ng-show="!isPalying" ng-click="playFile(audio.track, audio.key)"></i>
-        <i class="icon ion-ios-pause" ng-show="isPalying" ng-click="pauseFile()" ></i>
+        <i class="icon" ng-class="(isPalying==true) ? 'ion-ios-pause' : 'ion-ios-play'" ng-click="isPlaying ? pauseFile() : playFile(audio.track, audio.key)"></i>
         <div style="width: 100%;display: inline-block;">
           <div class="meter">
             <span id="audio_bar"></span>
@@ -44,17 +43,12 @@
         <i ng-click="pauseFile()" class="icon ion-android-checkbox-blank"></i>
       </div>
     </div>
-   <!--  <div class="anim-bar">
-      <div id="audio_bar" class="audio_bar"></div>
-    </div> -->
+  
     {{progressBarWidth}}-{{navigator}}
-    <span count-to="{{countTo}}" value="{{countFrom}}" duration="4"></span>
-    <p id="audio_position"></p>
 
-
-    <audio controls>
+    <!-- <audio controls autoplay>
       <source ng-src="{{recorded_file_url | trusted}}" type="audio/mpeg">
-    </audio>
-
+    </audio>{{recorded_file_url}}
+ -->
   </ion-content>
 </ion-view>

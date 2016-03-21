@@ -77,7 +77,7 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ngCordova', 'ionic-a
       } else {
         directory = cordova.file.externalRootDirectory; // for Android
       }
-      var recorded_file = "record" + Date.now() +".mp3"
+      var recorded_file = "record" + Date.now() +".m4a"
       $cordovaFile.copyFile(
         cordova.file.dataDirectory, fileName,
         directory+audioDirectory, recorded_file
@@ -114,10 +114,11 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ngCordova', 'ionic-a
         saveAudio(fileName, $scope);
       }, function(msg) {
         alert('ko: ' + msg);
-      }, 5);
+      }, 10);
     }
     recorder.playback = function($scope) {
       $scope.recordInfo = "playing..."
+      AudioToggle.setAudioMode(AudioToggle.SPEAKER);
       window.plugins.audioRecorderAPI.playback(function(msg) {
         // complete
         $scope.recordInfo = "";
@@ -145,61 +146,64 @@ angular.module('starter', ['ionic', 'starter.controllers', 'ngCordova', 'ionic-a
     }
     var media = null;
     var mediaTimer = null;
-    recorder.playSound = function(playSoundScope){
-      playSoundScope.isPalying=true;
-      console.log("play sound", playSoundScope.isPalying);
-      if(recorded_file_url.charAt(0) == 'f'){
-        recorded_file_url = recorded_file_url.slice(7); // for ios
-      }
-      media = new Media(""+recorded_file_url, null, null, mediaStatusCallback);
-      media.play(media, { playAudioWhenScreenIsLocked : false });
-      // Update my_media position every second
-      var totalDuration;
-      $timeout(function() {
-          totalDuration = media.getLength();
-      }, 100);
-      if (mediaTimer == null) {
-        mediaTimer = setInterval(function() {
-          console.log(totalDuration);
-          // get my_media position
-          media.getCurrentPosition(
-            // success callback
-            function(position) {
-              if (position > -1) {
-                setAudioPosition(position, totalDuration, playSoundScope);
-              }
-            },
-            // error callback
-            function(e) {
-              console.log("Error getting pos=" + e);
-              setAudioPosition("Error: " + e);
-            }
-          );
+    recorder.playSound = function(callPlayCallabck, onStopCallback){
+      if(recorded_file_url != undefined){
+        AudioToggle.setAudioMode(AudioToggle.SPEAKER);
+        callPlayCallabck();
+          if(recorded_file_url.charAt(0) == 'f'){
+            recorded_file_url = recorded_file_url.slice(7); // for ios
+          }
+        media = new Media(""+recorded_file_url, null, null, mediaStatusCallback);
+        media.play(media, { playAudioWhenScreenIsLocked : false });
+        // Update my_media position every second
+        var totalDuration;
+        $timeout(function() {
+            totalDuration = media.getDuration();
         }, 100);
-        console.log("playStatus",playStatus);
+        if (mediaTimer == null) {
+          mediaTimer = setInterval(function() {
+            console.log(totalDuration);
+            // get my_media position
+            media.getCurrentPosition(
+              // success callback
+              function(position) {
+                console.log("getCurrentPosition position : ",position);
+                if (position > -1) {
+                console.log("getCurrentPosition position : ",position);
+                console.log("getCurrentPosition totalDuration : ",totalDuration);
+                  setAudioPosition(position, totalDuration, onStopCallback);
+                }
+              },
+              // error callback
+              function(e) {
+                console.log("Error getting pos=" + e);
+                setAudioPosition("Error: " + e);
+              }
+            );
+          }, 100);
+        }
       }
     }
-    recorder.pauseSound = function($scope){
-      console.log("pause sound")
+    recorder.pauseSound = function(){
       if(media != null){
         media.pause();
         clearInterval(mediaTimer);
         mediaTimer = null;
       }
     }
-    function setAudioPosition(position, totalDuration, playSoundScope) {
+    function setAudioPosition(position, totalDuration, onStopCallback) {
       if(position <= 0){
         document.getElementById('audio_bar').style.width = (100) + "%";
         clearInterval(mediaTimer);
         mediaTimer = null;
-        playSoundScope.isPlaying=false;
-        console.log("playSoundScope", playSoundScope.isPlaying);
+       onStopCallback();
         playStatus = "playComplete";
       }else{
         console.log("position:",position);
         console.log("totalDuration", totalDuration)
-        console.log("100/position",(position/totalDuration) * 100)
-        document.getElementById('audio_bar').style.width = ((position/totalDuration) * 100) + "%";
+        // console.log("100/position",(position/totalDuration) * 100)
+        // document.getElementById('audio_bar').style.width = ((position/totalDuration) * 100) + "%";
+        document.getElementById('audio_bar').style.width = ((100-(100/position))) + "%";
       }
       document.getElementById('audio_position').innerHTML = position + " sec";
     }

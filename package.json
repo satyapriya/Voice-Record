@@ -26,7 +26,11 @@
     "ionic-plugin-keyboard",
     "cordova-plugin-audio-recorder-api",
     "cordova-plugin-file",
-    "cordova-plugin-media"
+    "cordova-plugin-media",
+    {
+      "locator": "https://github.com/alongubkin/audiotoggle.git",
+      "id": "com.dooble.audiotoggle"
+    }
   ],
   "cordovaPlatforms": [
     {

@@ -70,13 +70,29 @@ angular.module('starter.controllers', [])
       Sounds.myRecordObj.sendAudio($scope);
     }
 
+    function onPlaySound()
+    {
+      $scope.isPalying=true;
+    }
+    
+    function onStopSound()
+    {
+      console.log("onStopSound");
+      $scope.isPalying=false;
+      $scope.$apply();
+    }
+
+    function onPauseSound()
+    {
+      $scope.isPalying=false;
+    }
+
     $scope.playFile = function(playStatus){
-      Sounds.myRecordObj.playSound($scope);
-      console.log("playStatus",playStatus)
+      Sounds.myRecordObj.playSound(onPlaySound,onStopSound);
     }
 
     $scope.pauseFile = function(){
-      Sounds.myRecordObj.pauseSound($scope);
+      Sounds.myRecordObj.pauseSound();
       $scope.isPalying=false;
     }
 });
